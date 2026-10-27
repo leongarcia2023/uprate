@@ -1,0 +1,188 @@
+{
+  "facts": {
+    "approvals": 172,
+    "total_mwt": 24146.2,
+    "review_times": 164,
+    "parser": 147,
+    "hand": 17,
+    "microfiche": 8,
+    "first_approval": "1977-09-09",
+    "last_approval": "2021-11-09",
+    "last_epu": "2017-08-14",
+    "approvals_2001_2002": {
+      "MUR": 25,
+      "Stretch": 6,
+      "EPU": 9
+    },
+    "epu_wave_2001_2002": {
+      "n": 9,
+      "min": 9.6,
+      "median": 11.8,
+      "max": 16.1
+    },
+    "epu_since_2005": {
+      "n": 22,
+      "min": 12.1,
+      "median": 22.8,
+      "max": 61.1
+    },
+    "epu_since_2005_at_least_17": 21,
+    "epu_since_2005_bwr": {
+      "n": 12,
+      "min": 19.8,
+      "median": 22.9,
+      "max": 61.1
+    },
+    "mur_before_2010": {
+      "n": 44,
+      "min": 3.1,
+      "median": 7.0,
+      "max": 14.6
+    },
+    "mur_since_2010": {
+      "n": 29,
+      "min": 7.6,
+      "median": 11.3,
+      "max": 31.5
+    },
+    "epu_since_2010": {
+      "n": 14,
+      "min": 19.0,
+      "median": 22.8,
+      "max": 61.1
+    },
+    "stretch_all": {
+      "n": 57,
+      "min": 3.2,
+      "median": 10.0,
+      "max": 39.2
+    }
+  },
+  "pipeline": {
+    "applications_named": 30,
+    "mwe_by_year": 2422
+  },
+  "uprates_2029": {
+    "historical": {
+      "p10": 185,
+      "p50": 219,
+      "p90": 554,
+      "with_restarts": 2469,
+      "share_of_mark": 49
+    },
+    "fast": {
+      "p10": 236,
+      "p50": 537,
+      "p90": 737,
+      "with_restarts": 2787,
+      "share_of_mark": 56
+    },
+    "slow": {
+      "p10": 135,
+      "p50": 185,
+      "p90": 219,
+      "with_restarts": 2435,
+      "share_of_mark": 49
+    },
+    "targets": {
+      "p10": 327,
+      "p50": 662,
+      "p90": 845,
+      "with_restarts": 2912,
+      "share_of_mark": 58
+    },
+    "targets_fast": {
+      "p10": 754,
+      "p50": 936,
+      "p90": 1119,
+      "with_restarts": 3186,
+      "share_of_mark": 64
+    }
+  },
+  "uprates_2027": {
+    "historical": {
+      "p10": 0,
+      "p50": 0,
+      "p90": 0
+    },
+    "fast": {
+      "p10": 0,
+      "p50": 0,
+      "p90": 17
+    },
+    "slow": {
+      "p10": 0,
+      "p50": 0,
+      "p90": 0
+    },
+    "targets": {
+      "p10": 0,
+      "p50": 0,
+      "p90": 0
+    },
+    "targets_fast": {
+      "p10": 0,
+      "p50": 17,
+      "p90": 34
+    }
+  },
+  "targets_gain_2029": 443,
+  "restarts": {
+    "Palisades": 800,
+    "Crane": 835,
+    "Duane Arnold": 615,
+    "total": 2250,
+    "counted_2027": 1350.0
+  },
+  "share_if_one_restart_misses_2029": {
+    "Palisades": 33,
+    "Crane": 33,
+    "Duane Arnold": 37
+  },
+  "first_epu_2026_by_2029": 0.277,
+  "filing_to_power_median_months": {
+    "MUR": 21.1,
+    "Stretch": 19.8,
+    "EPU": 43.3
+  },
+  "headroom_ceiling": {
+    "BWR": {
+      "p90": 20.0,
+      "units": 33
+    },
+    "PWR": {
+      "p90": 11.69,
+      "units": 68
+    }
+  },
+  "sensitivity": {
+    "whole_record_reviews": {
+      "p50": 419,
+      "share_of_mark": 53
+    },
+    "even_mwe_split": {
+      "historical": 463,
+      "fast": 747,
+      "slow": 412
+    },
+    "seeds_1_to_20": {
+      "min": 219,
+      "max": 236,
+      "values": [
+        [
+          219,
+          13
+        ],
+        [
+          226,
+          1
+        ],
+        [
+          236,
+          6
+        ]
+      ]
+    },
+    "runs_20000": 219
+  }
+}
