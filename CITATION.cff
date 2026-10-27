@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite it as below."
+title: "When Do the Megawatts Arrive? A Public Baseline for U.S. Power Uprate Delivery Timing"
+type: dataset
+version: "1.0"
+date-released: "2026-10-23"
+authors:
+  - family-names: "Garcia"
+    given-names: "León"
+    affiliation: "Department of Physics, Stanford University"
+license:
+  - MIT
+  - CC-BY-4.0
+url: "https://leonmgarcia.com/uprate/"
+repository-code: "https://github.com/leongarcia2023/uprate"
+keywords:
+  - nuclear power
+  - power uprates
+  - NRC licensing
+  - review duration
+  - Monte Carlo
+abstract: "Every NRC power uprate approval from 1977 to 2021, with 164 application to approval review times read from the NRC's approval letters, and a Monte Carlo model of when the uprates on the NRC's expected applications list reach the grid."
