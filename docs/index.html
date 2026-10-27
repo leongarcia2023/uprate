@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>When Do the Megawatts Arrive? | León Garcia</title>
+<meta name="description" content="A public baseline for U.S. power uprate delivery timing: 172 NRC approvals, 164 review times read from NRC letters, and a model of when the uprates on the NRC’s expected list reach the grid. Dataset and code v1.0.">
+<meta property="og:title" content="When Do the Megawatts Arrive?">
+<meta property="og:description" content="172 NRC uprate approvals, 164 review times read from the NRC’s letters, and a model of when the expected uprates reach the grid. Data and code v1.0.">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+:root{--ink:#22222A;--navy:#1A2A4A;--slate:#56648A;--muted:#5A5C6B;--rust:#8F3B1E;--wash:#F5F5F7;--paper:#FFFFFF;--font:'CMU Serif','Latin Modern Roman','Computer Modern Serif',Georgia,serif;--mono:'CMU Typewriter Text','Latin Modern Mono',ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html{background:var(--paper);color-scheme:light;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:18.5px;line-height:1.58;font-weight:400;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;font-kerning:normal}
+button,input,select,textarea{font-family:var(--font)}
+a{color:var(--navy);text-decoration-thickness:1.5px;text-underline-offset:3px}
+a:hover{color:var(--rust)}
+@media (hover:hover) and (pointer:fine){
+::-webkit-scrollbar{width:16px;height:16px;background:#fff}
+::-webkit-scrollbar-track{background:#fff}
+::-webkit-scrollbar-track:vertical{border-left:2px solid var(--ink)}
+::-webkit-scrollbar-track:horizontal{border-top:2px solid var(--ink)}
+::-webkit-scrollbar-thumb{background-color:var(--ink);background-clip:padding-box;border:3px solid transparent;border-radius:0}
+::-webkit-scrollbar-thumb:vertical{border-left-width:5px}
+::-webkit-scrollbar-thumb:horizontal{border-top-width:5px}
+::-webkit-scrollbar-thumb:hover{background-color:var(--navy)}
+::-webkit-scrollbar-thumb:active{background-color:var(--rust)}
+::-webkit-scrollbar-corner{background:#fff}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+html::-webkit-scrollbar-track:vertical,body::-webkit-scrollbar-track:vertical{border-left:0}
+html::-webkit-scrollbar-thumb:vertical,body::-webkit-scrollbar-thumb:vertical{border-left-width:4px;border-right-width:4px}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-color:var(--ink) #fff}}
+}
+b,strong{font-weight:700}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+.wide{max-width:1060px;margin:0 auto;padding:0 20px}
+h1{font-size:48px;line-height:1.08;color:var(--navy);font-weight:400;margin:0 0 10px}
+h2{font-size:29px;line-height:1.2;color:var(--navy);font-weight:400;margin:0 0 14px}
+h3{font-size:21px;line-height:1.25;color:var(--navy);font-weight:400;margin:20px 0 8px}
+p{margin:0 0 14px}
+ul{margin:0 0 14px;padding-left:22px}
+li{margin:0 0 7px}
+.masthead{padding:28px 0 8px}
+.home{font-size:15px;color:var(--slate);text-decoration:none}
+.home:hover{color:var(--rust)}
+.sub{font-size:22px;color:var(--slate);margin:0 0 18px;line-height:1.3}
+.byline{color:var(--muted);font-size:16px;margin:0 0 18px}
+.hero{margin:6px 0 20px;padding:0;aspect-ratio:1000/466;cursor:pointer}
+.hero svg{display:block;width:100%;height:auto}
+.hero text{font-family:var(--font)}
+.dl{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.dl a{display:inline-block;border:2px solid var(--ink);padding:6px 12px 5px;font-size:15.5px;text-decoration:none;color:var(--ink);background:#fff}
+.dl a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.dl a small{color:var(--muted);font-size:13.5px}
+.dl a:hover small{color:#dfe3ee}
+.short{padding:4px 0 0;margin:4px 0 6px}
+.short h2{font-size:23px;margin-bottom:8px}
+.toc{columns:2;column-gap:28px;padding:0;list-style:none;margin:10px 0 0;font-size:16px}
+.toc li{margin:0 0 4px;break-inside:avoid}
+.toc a{text-decoration:none;color:var(--slate)}
+.toc a:hover{color:var(--rust)}
+section{padding:0;margin-top:30px}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0 4px}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.ctl-label{font-size:15px;color:var(--muted)}
+.seg{display:inline-flex;flex-wrap:wrap;border:2px solid var(--ink);max-width:100%}
+.seg button{appearance:none;border:0;border-right:2px solid var(--ink);background:#fff;color:var(--ink);font-size:15px;padding:6px 11px 5px;cursor:pointer;line-height:1.2}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:hover:not([aria-pressed="true"]){background:var(--wash)}
+.seg button:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,.key-item:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+label.chk{display:inline-flex;align-items:center;gap:6px;font-size:15px;cursor:pointer}
+label.chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;margin:0;border:2px solid var(--ink);background:#fff;display:inline-grid;place-content:center;cursor:pointer;flex:none}
+label.chk input::before{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:translateY(-1px) rotate(-45deg);opacity:0}
+label.chk input:checked{background:var(--navy)}
+label.chk input:checked::before{opacity:1}
+select,input[type=number],input[type=search]{font-size:15.5px;border:2px solid var(--ink);background:#fff;color:var(--ink);padding:5px 8px;border-radius:0;max-width:100%}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:150px;max-width:44vw;height:22px;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--ink);border:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--navy);border:2px solid var(--ink);margin-top:-6.5px}
+input[type=range]::-moz-range-track{height:3px;background:var(--ink);border:0}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--navy);border:2px solid var(--ink)}
+input[type=range]:disabled{opacity:.35;cursor:default}
+.btn{appearance:none;border:2px solid var(--ink);background:#fff;color:var(--ink);font-size:15px;padding:6px 12px 5px;cursor:pointer}
+.btn:hover{background:var(--navy);color:#fff}
+.dd{position:relative;display:inline-block;max-width:100%;vertical-align:middle}
+.dd-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none;overflow:hidden;clip:rect(0 0 0 0);margin:0!important;padding:0!important;border:0!important}
+.dd-btn{appearance:none;display:inline-flex;align-items:center;gap:12px;max-width:100%;font-family:var(--font);font-size:15.5px;line-height:1.25;color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:0;padding:6px 10px 5px;cursor:pointer;text-align:left}
+.dd-btn:hover{background:var(--wash)}
+.dd.open .dd-btn{background:var(--navy);color:#fff}
+.dd-btn:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.dd-val{display:grid;min-width:0}
+.dd-val>span{grid-area:1/1;visibility:hidden;white-space:nowrap}
+.dd-val>span.on{visibility:visible}
+.dd-caret{display:inline-flex;flex:none;transition:transform .15s ease}
+.dd.open .dd-caret{transform:rotate(180deg)}
+.dd-list{position:absolute;z-index:40;left:0;top:calc(100% + 4px);min-width:100%;width:max-content;max-width:calc(100vw - 32px);max-height:min(340px,60vh);overflow:auto;margin:0;padding:0;list-style:none;background:#fff;border:2px solid var(--ink)}
+.dd-list[hidden]{display:none}
+.dd.up .dd-list{top:auto;bottom:calc(100% + 4px)}
+.dd-list:focus{outline:none}
+.dd-opt{padding:7px 14px 6px;font-size:16px;line-height:1.3;cursor:pointer;color:var(--ink);margin:0}
+.dd-opt.active{background:var(--wash)}
+.dd-opt[aria-selected="true"]{background:var(--navy);color:#fff}
+figure{margin:6px 0 8px}
+.key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin:6px 0 8px;font-size:18px;line-height:1.3;min-height:24px}
+.key-item{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-size:18px;line-height:1.3}
+button.key-item{appearance:none;background:none;border:0;padding:2px 0;cursor:pointer}
+button.key-item[aria-pressed="false"]{opacity:.4;text-decoration:line-through}
+.key-item .sw{display:inline-flex;flex:none}
+.chart{width:100%;min-height:200px;overflow:hidden;position:relative}
+.chart.js-plotly-plot{min-height:0}
+figcaption{font-size:15px;color:var(--muted);line-height:1.5;margin-top:6px;max-width:760px}
+.note{font-size:15.5px;color:var(--muted)}
+.callout{background:var(--wash);border-left:4px solid var(--navy);padding:12px 16px 4px;margin:14px 0 4px}
+.callout h3{margin-top:0}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0 4px}
+.tile{border-top:3px solid var(--ink);padding:10px 0 4px;min-width:0}
+.tile .k{font-size:14px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.tile .v{font-size:34px;color:var(--navy);line-height:1.15;margin:2px 0}
+.tile .s{font-size:15.5px;color:var(--ink);line-height:1.45}
+.chain{display:flex;align-items:stretch;gap:6px;margin:16px 0 8px}
+.chain .step{flex:1 1 0;border:2px solid var(--ink);padding:10px 10px 8px;background:#fff;min-width:0}
+.chain .step b{display:block;font-weight:400;font-size:17px;color:#fff;margin:-10px -10px 8px;padding:8px 10px 6px}
+.chain .step span{display:block;font-size:15px;line-height:1.4;color:var(--ink)}
+.chain .arrow{align-self:center;font-size:22px;color:var(--ink)}
+.s1 b{background:#3D6B9E}.s2 b{background:#C65A2E}.s3 b{background:#56648A}.s4 b{background:#E0A23C;color:var(--ink)!important}.s5 b{background:#1FA89C}
+.readout{font-size:17px;margin:8px 0 4px}
+.readout strong{font-weight:400;color:var(--navy);font-size:19px}
+table{border-collapse:collapse;width:100%;font-size:15.5px;font-variant-numeric:tabular-nums}
+th{font-weight:400;text-align:left;color:var(--navy);border-bottom:0;box-shadow:inset 0 -2.5px 0 var(--ink);padding:6px 8px 6px;white-space:nowrap;font-size:15.5px}
+td{border-bottom:1.5px solid var(--ink);padding:5px 8px;vertical-align:top}
+td.num,th.num{text-align:right}
+td.date{white-space:nowrap}
+td.pattern{background:var(--wash);font-family:var(--mono);font-size:14.5px}
+.tablebox{max-height:560px;overflow:auto;border:2px solid var(--ink);max-width:100%}
+.tablebox tbody tr:last-child td{border-bottom:0}
+.tablebox th{position:sticky;top:0;background:#fff;z-index:1;cursor:pointer}
+.tablebox th[aria-sort="ascending"]::after{content:" \2191";font-size:13px}
+.tablebox th[aria-sort="descending"]::after{content:" \2193";font-size:12px}
+.rownote{font-size:13.5px;line-height:1.35;color:var(--muted);max-width:330px;margin-top:2px}
+.tag{display:inline-block;font-size:13.5px;padding:0 6px;border:1.5px solid currentColor;line-height:1.5;white-space:nowrap}
+.tag.MUR{color:#8a5a00}.tag.Stretch{color:#0d6e66}.tag.EPU{color:#9c3f1a}
+.tag.parser{color:var(--slate)}.tag.hand{color:#8a5a00}.tag.none{color:var(--muted)}
+.count{font-size:15px;color:var(--muted);margin:6px 0}
+.parser-box textarea{width:100%;min-height:104px;font-size:16px;line-height:1.5;border:2px solid var(--ink);padding:8px;resize:vertical;color:var(--ink)}
+.parser-out{font-size:16.5px;margin-top:8px;min-height:24px}
+.parser-out .match{color:var(--navy);font-family:var(--mono);font-size:15px}
+code{font-family:var(--mono);font-size:.9em;background:var(--wash);padding:1px 5px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--navy);font-size:17px}
+.cite{font-size:16px;background:var(--wash);padding:10px 14px}
+.sources li{font-size:16px;overflow-wrap:anywhere}
+.credits{margin:8px 0 2px}
+.credits-list{margin:10px 0 0;padding:0;list-style:none;font-size:15px;line-height:1.45}
+.credits-list li{break-inside:avoid;margin:0 0 6px;padding-left:14px;text-indent:-14px;font-size:15px}
+.files a{text-underline-offset:6px}
+footer{border-top:2px solid var(--ink);margin-top:30px;padding:14px 0 32px;color:var(--muted);font-size:15px}
+.sim-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 26px;margin:14px 0 6px}
+.sim-grid .ctl{justify-content:space-between}
+.sim-grid output{font-size:16px;min-width:56px;text-align:right;color:var(--navy)}
+.status{font-size:15px;color:var(--muted);min-height:20px}
+.map-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);grid-template-areas:"map photo" "detail detail";gap:16px;align-items:stretch;margin-top:2px}
+#key-map{scroll-margin-top:12px}
+.map-box{grid-area:map;position:relative;border:2px solid var(--ink);background:#fff;padding:8px 6px 4px;min-width:0}
+.map-box svg{display:block;width:100%;height:auto;aspect-ratio:950.6/605.2;touch-action:manipulation;overflow:visible}
+.map-land{fill:#fff}
+.map-states{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.map-nation{fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.pin .shape{stroke:var(--ink);stroke-width:1.6;vector-effect:non-scaling-stroke;transition:transform .12s ease}
+.pin.operating .shape{fill:var(--ink)}
+.pin.listed .shape{fill:var(--navy)}
+.pin.restart .shape{fill:#3D6B9E}
+.pin.closed .shape{fill:#fff;stroke-width:2}
+.pin.hover .shape{transform:scale(1.4)}
+.pin.sel .shape{fill:var(--rust)}
+.pin.closed.sel .shape{fill:#fff;stroke:var(--rust)}
+.map-ring{fill:none;stroke:var(--rust);stroke-width:2.6;vector-effect:non-scaling-stroke;pointer-events:none}
+.map-tip{position:absolute;z-index:6;left:0;top:0;width:224px;pointer-events:none;background:#fff;border:2px solid var(--ink);padding:8px 10px 7px;font-size:15px;line-height:1.35;color:var(--ink)}
+.map-tip[hidden]{display:none}
+.map-tip img{display:block;width:100%;height:118px;object-fit:cover;margin:0 0 7px;border:1.5px solid var(--ink);background:var(--wash)}
+.map-tip b{display:block;font-size:17px;font-weight:400;color:var(--navy);line-height:1.2}
+.map-tip span{display:block}
+.map-tip .tip-state{color:var(--muted);font-size:14px;margin-bottom:3px}
+.map-tip .tip-hint{color:var(--rust);font-size:13.5px;margin-top:4px}
+.map-tip.small{width:190px;padding:6px 8px 5px;font-size:14px}
+.map-tip.small b{font-size:15.5px}
+.map-photo{grid-area:photo;margin:0;display:flex;flex-direction:column;border:2px solid var(--ink);background:#fff;min-width:0;min-height:0}
+.mph-frame{position:relative;flex:1 1 0;min-height:0;overflow:hidden;background:var(--wash);border-bottom:2px solid var(--ink)}
+.mph-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease}
+.mph-frame img.in{opacity:1}
+.mph-empty{position:absolute;inset:0;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;color:var(--muted);font-size:15.5px;line-height:1.45}
+.mph-art{background:#fff}
+.mph-art svg{max-width:80%;height:auto;margin-bottom:14px}
+.mph-art p{margin:0;max-width:300px}
+.mph-cap{flex:none;height:94px;padding:8px 12px 6px;overflow:hidden;font-size:14px;line-height:1.4}
+.mph-cap b{display:block;font-weight:400;font-size:18px;line-height:1.25;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mph-cap span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.mph-cap .mph-credit{color:var(--muted);font-size:13px;line-height:1.38;white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;margin-top:1px}
+.mph-credit,.credits-list{font-variant-ligatures:no-common-ligatures}
+.mph-credit a{color:var(--muted)}
+.mph-credit a:hover{color:var(--rust)}
+.mph-note{position:absolute;left:8px;bottom:8px;max-width:calc(100% - 16px);background:rgba(255,255,255,.93);border:1.5px solid var(--ink);padding:3px 8px 2px;font-size:13.5px;line-height:1.35;color:var(--ink)}
+.map-detail{grid-area:detail;display:flex;flex-direction:column;height:524px;min-width:0;border:2px solid var(--ink);background:#fff}
+.md-bar{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:2px solid var(--ink)}
+.md-bar .dd{flex:0 1 auto;min-width:0}
+.md-back{appearance:none;margin-left:auto;border:2px solid var(--ink);background:#fff;color:var(--ink);font-family:var(--font);font-size:14.5px;padding:5px 10px 4px;cursor:pointer;white-space:nowrap;visibility:hidden}
+.md-back.on{visibility:visible}
+.md-back:hover{background:var(--navy);color:#fff}
+.mp-close{appearance:none;flex:none;width:34px;height:34px;border:2px solid var(--ink);background:#fff;color:var(--ink);font-family:var(--font);font-size:22px;line-height:1;cursor:pointer;padding:0 0 2px;visibility:hidden}
+.mp-close.on{visibility:visible}
+.mp-close:hover{background:var(--navy);color:#fff}
+.md-cols{flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr)}
+.md-text{overflow:auto;padding:12px 16px 14px;border-right:2px solid var(--ink);overscroll-behavior:contain}
+.md-text::after{content:"";display:block;position:sticky;bottom:-14px;height:54px;margin:-54px -16px 0;background:linear-gradient(rgba(255,255,255,0),#fff 80%);pointer-events:none;opacity:0;transition:opacity .15s ease}
+.md-text.more::after{opacity:1}
+.md-plot{display:flex;flex-direction:column;min-width:0;padding:10px 14px 4px}
+.md-plot-title{flex:none;height:46px;margin:0;display:flex;align-items:center;font-size:17px;font-weight:400;line-height:1.3;color:var(--navy);overflow:hidden}
+.md-plot-ctl{flex:none;height:38px;display:flex;align-items:center;position:relative}
+.md-note{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:14.5px;color:var(--muted);line-height:1.3}
+#site-seg.off{visibility:hidden}
+.md-key{flex:none;height:54px;margin:4px 0 2px;overflow:hidden;font-size:15px;gap:4px 16px;align-content:flex-start}
+.md-key .key-item{font-size:15px}
+#fig-site{flex:none;height:292px;min-height:292px}
+a.plant-link{text-decoration-style:dotted;text-decoration-thickness:2px;text-underline-offset:4px}
+a.plant-link.flash{background:#F4E2BE;box-shadow:0 0 0 3px #F4E2BE;transition:background .4s ease}
+.js-plotly-plot .plant-tick{fill:var(--navy)!important;cursor:pointer;pointer-events:all}
+.js-plotly-plot .plant-tick:focus{outline:none}
+.js-plotly-plot .ytick:hover .plant-tick,.js-plotly-plot .plant-tick:focus-visible,.js-plotly-plot .plant-tick.flash{fill:var(--rust)!important}
+.js-plotly-plot .tick-link{stroke:var(--navy);stroke-width:1.7;stroke-dasharray:2 2.4;pointer-events:none}
+.js-plotly-plot .ytick:hover .tick-link,.js-plotly-plot .plant-tick:focus-visible+.tick-link,.js-plotly-plot .plant-tick.flash+.tick-link{stroke:var(--rust)}
+.mp-intro{font-size:16px;margin:0 0 8px}
+.mp-counts{font-size:15.5px;margin:0;padding-left:20px}
+.mp-counts li{margin:0 0 4px}
+.mp-title{font-size:21px;margin:0 0 2px;line-height:1.2}
+.mp-title a{text-decoration:none;color:var(--navy)}
+.mp-title a:hover{text-decoration:underline}
+.mp-desc{font-size:15px;color:var(--muted);margin:0 0 8px}
+.mp-extract{font-size:16px;line-height:1.5;margin:0 0 6px}
+.mp-src{font-size:13.5px;color:var(--muted);margin:0 0 4px}
+.mp-loading{font-size:15px;color:var(--muted);margin:0 0 6px}
+.mp-sub{font-size:18px;font-weight:400;color:var(--navy);margin:14px 0 6px}
+.mp-status,.mp-line{font-size:15px;margin:0 0 8px;line-height:1.45}
+.mp-status b{font-weight:700}
+.mp-tablebox{margin:0 0 8px;border:2px solid var(--ink);overflow-x:auto}
+.mp-tablebox tbody tr:last-child td{border-bottom:0}
+.mp-table,.mp-table th{font-size:14px}
+.mp-table td,.mp-table th{padding:4px 6px}
+.mp-units{font-size:14px;margin:0 0 10px;padding-left:18px;line-height:1.4}
+.mp-units li{margin:0 0 3px}
+.mp-rows{appearance:none;border:2px solid var(--ink);background:#fff;color:var(--ink);font-family:var(--font);font-size:14.5px;padding:5px 10px 4px;cursor:pointer;text-align:left}
+.mp-rows:hover{background:var(--navy);color:#fff}
+.map-note{margin-top:10px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+@media (max-width:900px){
+#tbl-data td,#tbl-data th{padding-left:6px;padding-right:6px}
+.map-grid{grid-template-columns:1fr;grid-template-areas:"map" "photo" "detail"}
+.mph-frame{flex:none;aspect-ratio:16/9}
+.map-detail{height:auto}
+.md-cols{grid-template-columns:1fr;flex:none}
+.md-text{height:380px;border-right:0;border-bottom:2px solid var(--ink)}
+.md-key{height:80px}
+}
+@media (max-width:679px){
+.hero{aspect-ratio:600/580}
+}
+@media (max-width:640px){
+.wrap,.wide{padding:0 16px}
+body{font-size:17px}
+h1{font-size:36px}
+h2{font-size:24px}
+.sub{font-size:19px}
+.toc{columns:1}
+.tiles{grid-template-columns:1fr}
+.tile .v{font-size:30px}
+.chain{flex-direction:column}
+.chain .arrow{transform:rotate(90deg);align-self:center;line-height:1}
+.sim-grid{grid-template-columns:1fr}
+section{padding:0;margin-top:24px}
+.key,.key-item{font-size:16px}
+table,th{font-size:14.5px}
+#tbl-sens th{white-space:normal}
+#tbl-sens td:first-child{width:52%}
+#tbl-sens td.num{white-space:nowrap}
+.dd-wide{display:block;width:100%}
+.dd-wide .dd-btn{width:100%;justify-content:space-between}
+.dd-wide .dd-val>span{white-space:normal}
+.dd-wide .dd-val>span:not(.on){display:none}
+.dd-wide .dd-list{width:100%}
+#fig-site{height:268px;min-height:268px}
+.md-plot-title{height:66px;font-size:16px}
+.md-bar{flex-wrap:wrap}
+.md-bar .dd{flex:1 1 100%;order:3}
+.md-bar .dd-val>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+}
+@media (max-width:340px){
+.mph-cap{height:112px}
+.mph-cap .mph-credit{-webkit-line-clamp:3;line-clamp:3}
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+<div class="wrap">
+<a class="home" href="/">leonmgarcia.com</a>
+</div>
+</header>
+<main>
+<div class="wrap">
+<h1>When Do the Megawatts Arrive?</h1>
+<p class="sub">A public baseline for U.S. power uprate delivery timing</p>
+<p class="byline">León Garcia, Department of Physics, Stanford University. From my talk at the INL Energy Investment Decision Symposium in Idaho Falls on September 30, 2026. Dataset and code v1.0, released October 2026.</p>
+<nav class="dl" aria-label="Downloads">
+<a href="data/uprate_approvals_v1.0.csv" download>Dataset v1.0 <small>CSV, 172 rows</small></a>
+<a href="data/nrc_expected_applications_2026-09-08.csv" download>NRC expected list <small>CSV, Sept 8 2026</small></a>
+<a href="code/uprate_baseline.py" download>Model code <small>Python</small></a>
+<a href="code/extract_dates.py" download>Date parser <small>Python</small></a>
+<a href="downloads/uprate-baseline-v1.0.zip" download>Everything <small>zip</small></a>
+</nav>
+</div>
+<div class="wide">
+<figure class="hero" id="hero"></figure>
+</div>
+<div class="wrap">
+<div class="short">
+<h2>Summary</h2>
+<ul>
+<li>An increase to the licensed generation capacity of a nuclear power plant is called an “uprate.” DOE calls uprates and restarts its “fastest pathway” to new capacity.</li>
+<li>The Department of Energy has set ambitious goals to leverage reactor uprates to meet unprecedented increases in demand for baseload power.</li>
+<li>The NRC has approved 172 power uprates since 1977, totaling about 8 GWe. The last uprate approved was in November 2021, and nothing is under review today.</li>
+<li>Extended power uprates (the most aggressive uprate, which typically requires substantial modification to the plant) cleared the review process in about 12 months in 2001 and 2002. Since 2005 they have taken a median of 23, which is a substantially slower pace. Measurement uncertainty recaptures also slowed from 7 months to 11.</li>
+<li>Utilities have told the NRC to expect 31 uprate filings totaling about 2.4 GWe through 2032.</li>
+<li>At historical review speeds, those filings put 0 MWe on the grid by the end of 2027 and 219 MWe by the end of 2029. If we factor in the three announced reactor restarts going according to schedule, about 50% of the 5 GWe UPRISE goal can be achieved by 2029. If the NRC hits the review targets it set for itself in 2024, then it’s 58%.</li>
+</ul>
+</div>
+<ol class="toc">
+<li><a href="#uprise">UPRISE and the three uprate types</a></li>
+<li><a href="#pipeline">The NRC expects 31 applications</a></li>
+<li><a href="#history">8 GWe in 45 years</a></li>
+<li><a href="#parser">How I built the dataset</a></li>
+<li><a href="#reviews">EPUs in 2001 and 2002</a></li>
+<li><a href="#targets">About 2x the NRC’s targets</a></li>
+<li><a href="#chain">Filing to first electrons</a></li>
+<li><a href="#arrive">When the megawatts arrive</a></li>
+<li><a href="#room">Which plants still have room</a></li>
+<li><a href="#scenarios">Five scenarios for 2029</a></li>
+<li><a href="#calendar">The uprate decision calendar</a></li>
+<li><a href="#simulator">Run the model for yourself</a></li>
+<li><a href="#data">The dataset</a></li>
+<li><a href="#methods">Methods and limits</a></li>
+<li><a href="#map">Where are these reactors?</a></li>
+</ol>
+</div>
+
+<section id="uprise">
+<div class="wrap">
+<h2>UPRISE aims for 2.5 GWe by 2027 and 5 GWe by 2029</h2>
+<p>DOE’s Utility Power Reactor Incremental Scaling Effort, UPRISE, wants 2.5 GWe of new capacity at existing nuclear plants by the end of 2027 and 5 GWe by the end of 2029. Both of these goals count uprates and restarts.</p>
+<p>An uprate raises the thermal power a reactor is licensed to produce, and the NRC sorts them into three types:</p>
+<ul>
+<li><b>Measurement uncertainty recapture (MUR)</b>, about 1.5%. More accurate feedwater flow meters let a plant reclaim part of the 2% margin it has for measurement error.</li>
+<li><b>Stretch</b>, up to about 7%, usually without major plant modifications.</li>
+<li><b>Extended power uprate (EPU)</b>, up to 20%, typically involves installing new turbine and plant equipment.</li>
+</ul>
+<p>Between a filing and new electrons on the grid are three steps: the NRC reviews the application, the NRC approves it, and the plant installs the change at a refueling outage. I looked and could not find a public dataset of how long each of those steps takes, so I built one from publicly available data and am sharing it here.</p>
+</div>
+</section>
+
+<section id="pipeline">
+<div class="wrap">
+<h2>The NRC expects to receive 31 applications, totaling 2.4 GWe</h2>
+<p>Utilities inform the NRC of which uprates they plan to file and when. The bar plot below shows the NRC’s planned filing list as of September 8, 2026, by planned filing year, and the line is the running total. The dashed lines are the two UPRISE goals.</p>
+<p>The whole list through 2032 comes out to 2,421 MWe, which is under half the 2029 goal before a single review starts. Seventeen of the 31 filings are expected in 2027, so 2027 and 2028 are when the NRC’s review capacity gets tested. The NRC’s pending list was empty as of September 15, so every megawatt on this chart still has the whole chain of review ahead of it.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Show</span>
+<div class="seg" data-control="pipelineMode"><button type="button" data-value="mwe" aria-pressed="true">Megawatts</button><button type="button" data-value="count" aria-pressed="false">Filings</button></div></div>
+</div>
+<figure>
+<div class="key" id="key-pipeline" aria-label="Key"></div>
+<div class="chart" id="fig-pipeline" role="img" aria-label="Expected uprate applications by planned filing year, 2026 to 2032, stacked by type, with a running total that reaches 2,421 MWe against UPRISE goals of 2,500 and 5,000 MWe."></div>
+<figcaption>Hover a bar for the filings behind it. The NRC publishes megawatts by year, not by filing, so the split by type is my assumption: 17 MWe for each MUR, 50 for each stretch, and the EPUs share the rest of the year. The Filings view shows the NRC’s own counts.</figcaption>
+</figure>
+</div>
+<div class="wrap">
+<details>
+<summary>The 30 named filings on the NRC’s list</summary>
+<div class="tablebox" style="max-height:420px;margin-top:10px"><table id="tbl-expected"><thead><tr><th>Filing</th><th>Applicant</th><th>Plant</th><th>Type</th><th class="num">Model MWe</th></tr></thead><tbody></tbody></table></div>
+<p class="note" style="margin-top:8px">The NRC’s summary table counts 31 filings, and its named list has 30 rows. The two disagree in 2026, 2028 and 2030. I use the summary for megawatts by year and the named list for timing and type. The NRC withholds the plant names on 13 rows, and I don’t guess them.</p>
+</details>
+</div>
+</section>
+
+<section id="history">
+<div class="wrap">
+<h2>The program has approved about 8 GWe in 45 years, and UPRISE asks for 5 GWe in 3</h2>
+<p>The NRC approved 172 uprates from 1977 to 2021, adding 24,146 MWt, which is about 8 GWe. When one looks at the record, three distinct eras emerge, with stretch uprates being the uprate of choice through 2000, the “EPU wave” of 2001 and 2002, and MURs and EPUs dominating review time after that. The last EPU was <a class="plant-link" href="#plant-browns-ferry" data-site="browns-ferry">Browns Ferry</a> in 2017, and the last approval of any kind was a <a class="plant-link" href="#plant-millstone" data-site="millstone">Millstone 3</a> MUR in November 2021. Nothing has been approved since.</p>
+<p>The entire program of uprating light water reactors has added 8 GWe in 45 years. UPRISE asks for 5 GWe of both uprates and reactor restarts in about 3 years.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Show</span>
+<div class="seg" data-control="historyMode"><button type="button" data-value="year" aria-pressed="true">Per year</button><button type="button" data-value="total" aria-pressed="false">Running total</button></div></div>
+</div>
+<figure>
+<div class="key" id="key-history" aria-label="Key"></div>
+<div class="chart" id="fig-history" role="img" aria-label="Approved uprate capacity by year, 1977 to 2021, stacked by type. Stretch uprates dominate through 2000, EPUs peak in 2001 and 2002, and the running total reaches 24,146 MWt."></div>
+<figcaption>Thermal megawatts approved per year, by type, from the NRC’s approved applications table. The rows sum to 24,146 MWt, and the NRC’s own summary row says 24,089 MWt and 8,030 MWe.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="parser">
+<div class="wrap">
+<h2>164 review times, read from the NRC’s own letters</h2>
+<p>You shouldn’t take a dataset on faith, and in fact, all of the code and documentation to reproduce these findings is <a href="#files">available here for download</a>. Every publicly available NRC approval letter (available on the ADAMS database) cites the application it answers, usually in a sentence like “in response to your application dated March 24, 1977.” I wrote a simple text parser that pulls each letter from the NRC’s ADAMS document library and reads that date. The parser knows eight phrasings of the sentence, and the standard one matched 129 of the 147 dates it read.</p>
+<p>The parser read 147 dates. I read 17 by hand due to poor scans and garbled text, letters that bundle several requests, and wording the eight variants don’t cover. Eight approvals from before 1997 have only microfiche era accession numbers and no ADAMS document to read, so they count among the 172 approvals but have no reported review time for the purpose of this dataset. Every row carries its ADAMS accession number, so you can check any date in about thirty seconds.</p>
+</div>
+<div class="wide">
+<figure>
+<div class="key" id="key-provenance" aria-label="Key"></div>
+<div class="chart" id="fig-provenance" role="img" aria-label="Of 172 approvals, 147 review times were read by the parser, 17 by hand, and 8 have no readable letter."></div>
+<figcaption>Click a segment to filter the dataset table below to those rows.</figcaption>
+</figure>
+</div>
+<div class="wrap">
+<h3>The eight phrasings</h3>
+<p>The parser tries these in order and takes the first match. Each one ends in a date like “March 24, 1977.” It ignores supplements, so the original application date is the one that counts.</p>
+<div class="tablebox" style="max-height:none"><table id="tbl-variants"><thead><tr><th class="num">#</th><th>Wording the parser looks for</th><th class="num">Rows</th></tr></thead><tbody></tbody></table></div>
+<h3>Try it out for yourself</h3>
+<div class="parser-box">
+<div class="controls" style="margin-top:4px">
+<div class="ctl"><span class="ctl-label">Example</span>
+<div class="seg" data-control="parserExample"><button type="button" data-value="0" aria-pressed="true">Standard</button><button type="button" data-value="1" aria-pressed="false">Licensee named</button><button type="button" data-value="2" aria-pressed="false">Safety evaluation</button><button type="button" data-value="3" aria-pressed="false">Letters dated</button><button type="button" data-value="4" aria-pressed="false">Missing space</button></div></div>
+</div>
+<label class="vh" for="parser-text">Letter text</label>
+<textarea id="parser-text" spellcheck="false"></textarea>
+<div class="parser-out" id="parser-out" aria-live="polite"></div>
+<p class="note">The examples are written to match common NRC wording. Paste text from any approval letter to test it, or write your own if you feel like it. This is the same pattern list as the Python parser.</p>
+</div>
+</div>
+</section>
+
+<section id="reviews">
+<div class="wrap">
+<h2>In 2001 and 2002, EPUs cleared review as fast as MURs have since 2010</h2>
+<p>Each dot is one approval. Across is the approval date, and up is the review time, from the application date to approval. Click a dot to open its NRC letter.</p>
+<p>The shaded band is the first EPU wave where nine EPUs were approved in 2001 and 2002, with reviews of 9.6 to 16.1 months and a median of 11.8. Right of the dashed line, 21 of the 22 EPUs approved since 2005 took 17 to 61 months, median 22.8. The exception is <a class="plant-link" href="#plant-ginna" data-site="ginna">Ginna</a>, a PWR, at 12.1 months in 2006. No BWR EPU approved since 2005 has cleared review in under 19 months. That shift follows the steam dryer failures at <a class="plant-link" href="#plant-quad-cities" data-site="quad-cities">Quad Cities</a> in 2002 and 2003, and the record dates the shift, but this is a correlation, not necessarily causation.</p>
+<p>MUR reviews slowed down too, from a median of 7.0 months before 2010 (44 reviews) to 11.3 since (29). In 2001 and 2002, EPUs as large as 20% cleared review in about the time a 1.5% MUR has needed since 2010.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Highlight</span>
+<div class="seg" data-control="reviewHighlight"><button type="button" data-value="all" aria-pressed="true">All</button><button type="button" data-value="wave" aria-pressed="false">EPU wave</button><button type="button" data-value="epu05" aria-pressed="false">EPUs since 2005</button><button type="button" data-value="bwr05" aria-pressed="false">BWR EPUs since 2005</button><button type="button" data-value="mur10" aria-pressed="false">MURs since 2010</button></div></div>
+</div>
+<figure>
+<div class="key" id="key-reviews" aria-label="Key"></div>
+<div class="chart" id="fig-reviews" role="img" aria-label="Review time against approval date for 164 uprates. EPUs approved in 2001 and 2002 took 10 to 16 months; EPUs approved since 2005 mostly took 17 to 61 months."></div>
+<figcaption>Review time runs from the application date the letter cites to the approval date, in months of 30.44 days. It includes the NRC’s requests for more information, the utility’s responses, supplements and pauses: the calendar time a utility lives through. Click a type in the key to hide it.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="targets">
+<div class="wrap">
+<h2>Reviews have run about 2x the NRC’s 2024 targets</h2>
+<p>In a <a href="https://www.nrc.gov/docs/ML2410/ML24106A068.pdf">May 7, 2024 letter</a> to the Nuclear Energy Institute, the NRC stated review targets of 6 months for a MUR, 9 for a stretch and 12 for an EPU. Its <a href="https://www.nrc.gov/docs/ML2607/ML26075E825.pdf">2026 readiness slides</a> (<i>Transforming Readiness: Preparing the NRC for the Next Era of Power Uprates</i>) count those months from the end of the acceptance review, which I take as about two months.</p>
+<p>The dashed red lines are the targets and the black bars are what happened. Recent EPUs took a median of 22.8 months and recent MURs 11.3 months, which is just about twice the NRC’s targets. The one group that met today’s EPU target is the 2001 and 2002 wave at 11.8 months, so this pace has happened before.</p>
+<p>My review times start at the application, but if you add the two month acceptance review to the targets, the gap shrinks. Recent MURs still run 41% over and recent EPUs 63% over this target.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Targets</span>
+<div class="seg" data-control="targetMode"><button type="button" data-value="stated" aria-pressed="true">As stated</button><button type="button" data-value="plus2" aria-pressed="false">Plus 2 month acceptance</button></div></div>
+</div>
+<figure>
+<div class="key" id="key-eras" aria-label="Key"></div>
+<div class="chart" id="fig-eras" role="img" aria-label="Review times grouped by era: EPU 2001 and 2002 median 11.8 months against a 12 month target; EPU 2005 to 2017 median 22.8; MUR 1999 to 2009 median 7.0 against a 6 month target; MUR 2010 to 2021 median 11.3."></div>
+<figcaption>Each dot is one approval, and black bars mark the median of each group.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="chain">
+<div class="wrap">
+<h2>The path from filing to first electrons</h2>
+<p>To turn review times into megawatts on the grid, I walk each filing on the NRC’s list through this chain. The filing date is the middle of the quarter the NRC lists. The review time is a random draw from real reviews approved since 2010, with 29 MURs with a median of 11.3 months and 14 EPUs with a median of 22.8. The NRC hasn’t approved a stretch uprate since 2008, so the two <a class="plant-link" href="#plant-salem" data-site="salem">Salem</a> stretch uprate filings draw from all 57 past stretch reviews, with a median of 10 months.</p>
+<p>The plant then installs the change at a refueling outage ranging from 3 to 15 months after approval for a MUR or stretch, and 9 to 30 for an EPU, which often needs two outages. EIA generator records put the “step up” at <a class="plant-link" href="#plant-grand-gulf" data-site="grand-gulf">Grand Gulf</a>, <a class="plant-link" href="#plant-browns-ferry" data-site="browns-ferry">Browns Ferry</a> and <a class="plant-link" href="#plant-peach-bottom" data-site="peach-bottom">Peach Bottom</a> about a year after approval, and <a class="plant-link" href="#plant-nine-mile-point" data-site="nine-mile-point">Nine Mile Point 2</a> at about two, in phases. Four plants can anchor those windows but can’t define a distribution, so the scenarios below move every window six months either way. I run the whole review chain 5,000 times per scenario.</p>
+</div>
+<div class="wide">
+<div class="chain" aria-label="Five steps from filing to power">
+<div class="step s1"><b>Application filed</b><span id="chain-1">Quarter from the NRC’s list</span></div>
+<div class="arrow" aria-hidden="true">→</div>
+<div class="step s2"><b>NRC review</b><span id="chain-2"></span></div>
+<div class="arrow" aria-hidden="true">→</div>
+<div class="step s3"><b>Approval</b><span id="chain-3">License amendment issued</span></div>
+<div class="arrow" aria-hidden="true">→</div>
+<div class="step s4"><b>Installation</b><span id="chain-4"></span></div>
+<div class="arrow" aria-hidden="true">→</div>
+<div class="step s5"><b>Power on the grid</b><span id="chain-5"></span></div>
+</div>
+</div>
+<div class="wrap">
+<h3>Filing to power calculator</h3>
+<p>Pick a filing and the calculator runs the same chain 5,000 times for that one application.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Type</span>
+<div class="seg" data-control="leadType"><button type="button" data-value="MUR" aria-pressed="true">MUR</button><button type="button" data-value="Stretch" aria-pressed="false">Stretch</button><button type="button" data-value="EPU" aria-pressed="false">EPU</button></div></div>
+<div class="ctl"><span class="ctl-label">Reviews</span>
+<div class="seg" data-control="leadReview"><button type="button" data-value="modern" aria-pressed="true">Since 2010</button><button type="button" data-value="whole" aria-pressed="false">Whole record</button><button type="button" data-value="targets" aria-pressed="false">NRC targets</button></div></div>
+<div class="ctl"><span class="ctl-label">Installation</span>
+<div class="seg" data-control="leadShift"><button type="button" data-value="-6" aria-pressed="false">6 months sooner</button><button type="button" data-value="0" aria-pressed="true">Typical</button><button type="button" data-value="6" aria-pressed="false">6 months later</button></div></div>
+<div class="ctl"><label class="ctl-label" for="lead-quarter">Filed</label>
+<select id="lead-quarter"></select></div>
+</div>
+<p class="readout" id="lead-readout" aria-live="polite"></p>
+<figure>
+<div class="chart" id="fig-lead" role="img" aria-label="Distribution of months from filing to power for one uprate application."></div>
+<figcaption id="lead-caption"></figcaption>
+</figure>
+</div>
+</section>
+
+<section id="arrive">
+<div class="wrap">
+<h2>When the megawatts arrive: nothing by 2027 and about half the 2029 goal</h2>
+<p>The plot below has an orange line indicating uprates at historical review times. The line is the median run, and the orange shaded band shows the middle 80% of runs. The dashed purple line is the median if the NRC meets its targets from the first filing. Dark blue shows the three announced restarts stacked on top of the uprates, with <a class="plant-link" href="#plant-palisades" data-site="palisades">Palisades</a> (about 800 MWe), <a class="plant-link" href="#plant-crane" data-site="crane">Crane</a> (835) and <a class="plant-link" href="#plant-duane-arnold" data-site="duane-arnold">Duane Arnold</a> (615) at company guidance as of September. The restarts never go through the review chain. The diamonds are the UPRISE goals.</p>
+<p>By the end of 2027, uprates deliver 0 MWe at historical review times, and 17 MWe, one MUR, in the fastest case I model. The three restarts total 2,250 MWe, so the visible pipeline can’t reach the 2027 goal even if every restart lands on time.</p>
+<p>By the end of 2029, uprates deliver 219 MWe, with the middle 80% of runs between 185 and 554. Add the restarts and the total is 2,469 MWe, 49% of the goal. If the NRC hits its targets, uprates give 662 and the total reaches 58%. Switch off a restart to see what a slip costs.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><label class="ctl-label" for="fan-scenario">Uprates</label>
+<select id="fan-scenario" data-shared="scenario"></select></div>
+<div class="ctl"><label class="chk"><input type="checkbox" id="fan-targets" checked> NRC targets line</label></div>
+<div class="ctl"><span class="ctl-label">Restarts on time</span>
+<label class="chk"><input type="checkbox" data-restart="Palisades" checked> Palisades</label>
+<label class="chk"><input type="checkbox" data-restart="Crane" checked> Crane</label>
+<label class="chk"><input type="checkbox" data-restart="Duane Arnold" checked> Duane Arnold</label></div>
+</div>
+<div class="tiles" aria-live="polite">
+<div class="tile"><div class="k">End of 2027</div><div class="v" id="tile27">0 MWe</div><div class="s" id="tile27s"></div></div>
+<div class="tile"><div class="k">End of 2029</div><div class="v" id="tile29">219 MWe</div><div class="s" id="tile29s"></div></div>
+</div>
+<figure>
+<div class="key" id="key-fan" aria-label="Key"></div>
+<div class="chart" id="fig-fan" role="img" aria-label="Cumulative delivered capacity from uprates and restarts, 2026 to 2033, against the UPRISE goals of 2.5 GWe by 2027 and 5 GWe by 2029."></div>
+<figcaption>I count 60% of the restart capacity in 2027, since the restarts are staggered through the year, and all of it from 2028. Unchecking a restart removes it through 2033. The band and median come from 5,000 runs with seed 7.</figcaption>
+</figure>
+</div>
+<div class="wrap">
+<h3>What goes into my estimate for 2029?</h3>
+<p>The median moves in lumps because each filing’s megawatts arrive at once. The 219 MWe is the small, early filings: the seven MURs and two <a class="plant-link" href="#plant-salem" data-site="salem">Salem</a> stretch uprates filed in the first half of 2027 each reach the grid by the end of 2029 in more than 80% of runs. The EPUs filed in 2027 make it in under 5% of runs. The Q4 2026 Constellation EPU carries all 335 MWe of the NRC’s 2026 total and makes it in 28% of runs. When it lands along with the small filings, 2029 reaches 554 MWe, the top of the band.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">Online by the end of</span>
+<div class="seg" data-control="insideYear"><button type="button" data-value="2027" aria-pressed="false">2027</button><button type="button" data-value="2029" aria-pressed="true">2029</button><button type="button" data-value="2031" aria-pressed="false">2031</button></div></div>
+<div class="ctl"><label class="ctl-label" for="inside-scenario">Scenario</label>
+<select id="inside-scenario" data-shared="scenario"></select></div>
+</div>
+<figure>
+<div class="key" id="key-inside" aria-label="Key"></div>
+<div class="chart" id="fig-inside" role="img" aria-label="Share of model runs in which each of the 30 named filings is online by the chosen year."></div>
+<figcaption>Each bar is one filing on the NRC’s list, in the NRC’s order, with the megawatts my split assigns to it. The scenario selector is shared with the chart above.</figcaption>
+</figure>
+</div>
+<div class="wrap">
+<div class="callout">
+<h3>Recent news since the talk</h3>
+<p>On October 6, Google and Constellation announced a 20 year power purchase agreement tied to 890 MW of added capacity at 11 reactors in PJM: <a class="plant-link" href="#plant-braidwood" data-site="braidwood">Braidwood</a>, <a class="plant-link" href="#plant-byron" data-site="byron">Byron</a>, <a class="plant-link" href="#plant-lasalle" data-site="lasalle">LaSalle</a>, <a class="plant-link" href="#plant-quad-cities" data-site="quad-cities">Quad Cities</a>, <a class="plant-link" href="#plant-limerick" data-site="limerick">Limerick</a> and <a class="plant-link" href="#plant-salem" data-site="salem">Salem</a>. Constellation expects the first uprate to deliver by 2028. The NRC’s list already holds 12 unnamed Constellation filings plus the two <a class="plant-link" href="#plant-salem" data-site="salem">Salem</a> stretch filings, and the NRC hadn’t updated the list as of October 23. I can’t yet tell how much of the 890 MW is new to the list, or how much comes from turbine work that never needs an uprate review. The December refresh will check. Constellation’s date fits the model with a MUR filed in early 2027 reaching the grid by the end of 2028 in about 6 of 10 runs.</p>
+</div>
+</div>
+</section>
+
+<section id="room">
+<div class="wrap">
+<h2>Which plants still have room?</h2>
+<p>Where could the next filings come from? Using only the approval record, I compare each unit’s total approved uprate with the 90th percentile for its reactor type: 20.0% for BWRs, across the 33 units with any uprate, and 11.7% for PWRs, across 68. The slashed part of each bar is the room left under that projection.</p>
+<p><a class="plant-link" href="#plant-perry" data-site="perry">Perry</a> and <a class="plant-link" href="#plant-columbia" data-site="columbia">Columbia</a> have some of the most room among BWRs, and both sit on the NRC’s list for EPUs. <a class="plant-link" href="#plant-brunswick" data-site="brunswick">Brunswick</a> is at the BWR line, and the list has it down for MURs only, which fits. This is by no means a perfect measurement, so one should treat it as a proxy where design margins, steam dryers and the turbine generator set the actual limit. The PWR line mostly reflects how few PWR EPUs the NRC has licensed. <a class="plant-link" href="#plant-beaver-valley" data-site="beaver-valley">Beaver Valley</a> and <a class="plant-link" href="#plant-vogtle" data-site="vogtle">Vogtle</a> are on the list for EPUs, and an EPU the size of any approved since 2005, 8% or more, would carry them past it.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><span class="ctl-label">View</span>
+<div class="seg" data-control="roomView"><button type="button" data-value="most" aria-pressed="true">Most room</button><button type="button" data-value="least" aria-pressed="false">At the line</button><button type="button" data-value="listed" aria-pressed="false">On the NRC list</button><button type="button" data-value="BWR" aria-pressed="false">All BWRs</button><button type="button" data-value="PWR" aria-pressed="false">All PWRs</button></div></div>
+</div>
+<figure>
+<div class="key" id="key-room" aria-label="Key"></div>
+<div class="chart" id="fig-room" role="img" aria-label="Cumulative approved uprate percentage by unit with the room left under the 90th percentile line for its reactor type."></div>
+<figcaption>Stars mark units on the NRC’s expected list. Closed units and the three restart units stay off the bars but count toward the percentiles. Hover a bar for the unit’s uprate history.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="scenarios">
+<div class="wrap">
+<h2>Five uprate scenarios for 2029</h2>
+<p>I have five defensible scenarios for how this uprate program will go, and unfortunately none of them meet the goals set out by the program by that time. Installation six months later ends up reaching 49% of the goal. A typical installation timeline lands us at 49% as well. If we assume installation happens six months sooner, it’s 56%. If the NRC meets its review targets, we end up at 58%. If we meet all of the targets and achieve fast installation timelines, then we get to 64%.</p>
+<p>None reaches the goal, and the reactor restarts constitute the vast majority of all of these. Uprates alone come to 4% to 19% of 5 GWe by 2029, before any supply chain limit enters.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><label class="chk"><input type="checkbox" id="scen-restarts" checked> Include restarts</label></div>
+<span class="note">The restart switches in the section above apply here too.</span>
+</div>
+<figure>
+<div class="key" id="key-scenarios" aria-label="Key"></div>
+<div class="chart" id="fig-scenarios" role="img" aria-label="Delivered capacity by the end of 2029 under five scenarios, from 2,435 MWe (49% of the goal) to 3,186 MWe (64%)."></div>
+<figcaption>Whiskers show the middle 80% of runs for the uprate part. The restart part is company guidance and has no band.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="calendar">
+<div class="wrap">
+<h2>What does this mean for the uprate decision calendar?</h2>
+<ul>
+<li><b>Utilities.</b> At historical review times, an EPU filed in 2027 is a 2030 or 2031 megawatt. The median runs 43 months from filing to power for an EPU and 21 for a MUR, so the outage that you book matters more than the approval date.</li>
+<li><b>Suppliers.</b> The demand signal exists, but installations cluster in 2030 and 2031, later than the UPRISE goals imply.</li>
+<li><b>NRC.</b> Hitting the 2024 targets is worth about 443 MWe by the end of 2029, and the 2001 and 2002 uprate wave shows that pace has been done before.</li>
+<li><b>Program.</b> Uprates unfortunately can’t reach the 2027 goal. The 2029 goal needs filings that aren’t on the list yet, MURs filed early, and restarts on time. Each restart that misses 2029 takes 615 to 835 MWe off the total.</li>
+</ul>
+</div>
+<div class="wide">
+<figure>
+<div class="key" id="key-arrivals" aria-label="Key"></div>
+<div class="chart" id="fig-arrivals" role="img" aria-label="Expected megawatts reaching the grid each year from the NRC’s list, peaking in 2030 and 2031 at historical review times."></div>
+<figcaption>Expected megawatts reaching the grid each year, averaged over 5,000 runs. Unlike the medians above, these averages count a filing’s megawatts in proportion to its odds of landing that year.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="simulator">
+<div class="wrap">
+<h2>Run the model for yourself</h2>
+<p>This panel runs the same model with the same random number generator and seed as the Python code, so the default settings reproduce the numbers above exactly. If you change any assumption it reruns.</p>
+</div>
+<div class="wide">
+<div class="sim-grid">
+<div class="ctl"><label class="ctl-label" for="sim-review">Review times</label>
+<select id="sim-review"><option value="modern">Historical, approvals since 2010</option><option value="whole">Historical, whole 1977 to 2021 record</option><option value="targets">NRC targets met</option></select></div>
+<div class="ctl"><label class="ctl-label" for="sim-scale">Historical reviews scaled to</label>
+<span><input type="range" id="sim-scale" min="50" max="150" step="5" value="100"> <output id="sim-scale-out" for="sim-scale">100%</output></span></div>
+<div class="ctl"><label class="ctl-label" for="sim-shift">Installation shift</label>
+<span><input type="range" id="sim-shift" min="-6" max="6" step="1" value="0"> <output id="sim-shift-out" for="sim-shift">0 mo</output></span></div>
+<div class="ctl"><span class="ctl-label">MWe split</span>
+<div class="seg" data-control="simSplit"><button type="button" data-value="type" aria-pressed="true">By type</button><button type="button" data-value="even" aria-pressed="false">Even</button></div></div>
+<div class="ctl"><label class="ctl-label" for="sim-mur">MWe per MUR</label>
+<span><input type="range" id="sim-mur" min="10" max="30" step="1" value="17"> <output id="sim-mur-out" for="sim-mur">17</output></span></div>
+<div class="ctl"><label class="ctl-label" for="sim-stretch">MWe per stretch</label>
+<span><input type="range" id="sim-stretch" min="30" max="80" step="5" value="50"> <output id="sim-stretch-out" for="sim-stretch">50</output></span></div>
+<div class="ctl"><span class="ctl-label">Restarts on time</span>
+<span><label class="chk"><input type="checkbox" data-restart="Palisades" checked> Palisades</label>
+<label class="chk"><input type="checkbox" data-restart="Crane" checked> Crane</label>
+<label class="chk"><input type="checkbox" data-restart="Duane Arnold" checked> Duane Arnold</label></span></div>
+<div class="ctl"><label class="ctl-label" for="sim-seed">Seed and runs</label>
+<span><input type="number" id="sim-seed" min="0" max="999999" step="1" value="7" style="width:92px"> <select id="sim-runs" aria-label="Runs"><option value="1000">1,000 runs</option><option value="5000" selected>5,000 runs</option><option value="20000">20,000 runs</option></select></span></div>
+</div>
+<div class="controls"><button type="button" class="btn" id="sim-reset">Reset to the talk’s base case</button><span class="status" id="sim-status" aria-live="polite"></span></div>
+<div class="tiles" aria-live="polite">
+<div class="tile"><div class="k">End of 2027</div><div class="v" id="sim27">0 MWe</div><div class="s" id="sim27s"></div></div>
+<div class="tile"><div class="k">End of 2029</div><div class="v" id="sim29">219 MWe</div><div class="s" id="sim29s"></div></div>
+</div>
+<figure>
+<div class="key" id="key-sim" aria-label="Key"></div>
+<div class="chart" id="fig-sim" role="img" aria-label="Your model run compared with the base case."></div>
+<figcaption>Dark blue is your run (median and middle 80% of runs, uprates only). The dashed orange line is the base case.</figcaption>
+</figure>
+</div>
+<div class="wrap">
+<h3>The things that move the 2029 MW number</h3>
+<div class="tablebox" style="max-height:none"><table id="tbl-sens"><thead><tr><th>Change from the base case</th><th class="num">Uprates, 2029</th><th class="num">With restarts</th></tr></thead><tbody></tbody></table></div>
+</div>
+</section>
+
+<section id="data">
+<div class="wrap">
+<h2>A public dataset, maintained quarterly</h2>
+<p>Everything above comes from public records. The dataset holds 172 approvals and 164 review times, and every review time links to the NRC letter it came from. I’ll refresh it each quarter against the NRC’s expected applications page, and the next refresh is December 2026.</p>
+<p>Find a wrong date? Email lgarcia3 [at] stanford.edu with the event number and I’ll fix it in the next release.</p>
+</div>
+<div class="wide">
+<div class="controls">
+<div class="ctl"><label class="vh" for="tbl-search">Search the dataset</label><input type="search" id="tbl-search" placeholder="Search plant or accession" style="width:230px"></div>
+<div class="ctl"><span class="ctl-label">Type</span>
+<div class="seg" data-control="tblType"><button type="button" data-value="all" aria-pressed="true">All</button><button type="button" data-value="MUR" aria-pressed="false">MUR</button><button type="button" data-value="Stretch" aria-pressed="false">Stretch</button><button type="button" data-value="EPU" aria-pressed="false">EPU</button></div></div>
+<div class="ctl"><span class="ctl-label">Date read by</span>
+<div class="seg" data-control="tblSource"><button type="button" data-value="all" aria-pressed="true">All</button><button type="button" data-value="parser" aria-pressed="false">Parser</button><button type="button" data-value="hand" aria-pressed="false">Hand</button><button type="button" data-value="none" aria-pressed="false">No letter</button></div></div>
+</div>
+<p class="count" id="tbl-count"></p>
+<div class="tablebox"><table id="tbl-data"><thead><tr><th class="num" data-key="no">#</th><th data-key="plant">Plant</th><th data-key="type">Type</th><th class="num" data-key="pct">%</th><th class="num" data-key="mwt">MWt</th><th data-key="applied">Applied</th><th data-key="approved">Approved</th><th class="num" data-key="months">Months</th><th data-key="source">Read by</th><th data-key="letter">NRC letter</th></tr></thead><tbody></tbody></table></div>
+</div>
+<div class="wrap">
+<h3 id="files">Files</h3>
+<ul class="files">
+<li><a href="data/uprate_approvals_v1.0.csv" download>uprate_approvals_v1.0.csv</a>: all 172 approvals with review times, how each date was read, and the ADAMS accession and link for every letter.</li>
+<li><a href="data/nrc_expected_applications_2026-09-08.csv" download>nrc_expected_applications_2026-09-08.csv</a> and <a href="data/nrc_expected_by_year_2026-09-08.csv" download>nrc_expected_by_year_2026-09-08.csv</a>: the NRC’s expected list and summary table as of September 8, 2026.</li>
+<li><a href="code/uprate_baseline.py" download>uprate_baseline.py</a>: the model. Standard library Python only, and <code>python3 uprate_baseline.py</code> reproduces the numbers on this page in about 15 seconds.</li>
+<li><a href="code/extract_dates.py" download>extract_dates.py</a>: the date parser, for rerunning against ADAMS or a folder of downloaded letters.</li>
+<li><a href="downloads/uprate-baseline-v1.0.zip" download>uprate-baseline-v1.0.zip</a>: all of the above, with a README that documents every column, plus the license and citation files.</li>
+</ul>
+<h3>Use and cite</h3>
+<p>The data is CC BY 4.0 and the code is MIT licensed. Use either for anything, and credit the dataset like this:</p>
+<p class="cite">Garcia, León. <i>When Do the Megawatts Arrive? A Public Baseline for U.S. Power Uprate Delivery Timing.</i> Dataset and code v1.0, October 2026. leonmgarcia.com/uprate.</p>
+</div>
+</section>
+
+<section id="methods">
+<div class="wrap">
+<h2>Methods and limits</h2>
+<h3>Review times</h3>
+<ul>
+<li>The date rule: take the original application date in the letter’s citing sentence, never a supplement. In a letter that bundles several requests, take the request that is the uprate.</li>
+<li>For 76 rows, the accession in the NRC’s table points to an ADAMS package rather than a letter. The parser opened the package and found the letter for 73 of them, and I read the other 3 by hand. The dataset records which document each date came from.</li>
+<li>A review time can run short, never long: when a utility withdrew and refiled, the approval letter cites the refiled application, so my clock starts there.</li>
+<li>The 17 hand read rows carry a note in the dataset saying why the parser missed them and which judgment call I made, such as the three application dates cited for <a class="plant-link" href="#plant-crystal-river" data-site="crystal-river">Crystal River 3</a> in 1981.</li>
+</ul>
+<h3>The delivery model</h3>
+<ul>
+<li>Each filing on the NRC’s list files at the middle of its listed quarter.</li>
+<li>Historical reviews draw at random from approvals since 2010 for MURs (29) and EPUs (14), and from all 57 stretch reviews. The targets scenario draws (target + 2 months) times a uniform factor between 0.75 and 1.25.</li>
+<li>Installation draws uniformly from 3 to 15 months after approval for a MUR or stretch and 9 to 30 for an EPU. The faster and slower scenarios shift both ends by 6 months.</li>
+<li>Megawatts per filing: 17 for a MUR, about 1.5% of a typical unit, and 50 for a stretch, with the EPUs splitting the rest of each year’s NRC total. This is a large assumption which moves the 2029 number of MW more than any other.</li>
+<li>Restarts are added on top at company guidance with 60% of 2,250 MWe in 2027 and all of it from 2028.</li>
+<li>5,000 runs per scenario with seed 7. The outcomes are discrete, so medians jump between a few values, and across seeds 1 to 20 the 2029 base median lands on 219, 226 or 236 MWe.</li>
+</ul>
+<h3>What the model leaves out</h3>
+<ul>
+<li>The runs treat each review as independent. A real slowdown would hit every filing at once, so the 80% bands are too narrow. The spread across scenarios, 49% to 64%, states the uncertainty better than any one band.</li>
+<li>There is no review queue. The historical case assumes reviews keep their historical speed even with 17 filings arriving in 2027. For scale, the NRC approved 40 uprates in 2001 and 2002, including the nine fast EPUs.</li>
+<li>Capacity that never needs an uprate review, such as a more efficient turbine at the same thermal power, sits outside the model and would add on top.</li>
+<li>Megawatts follow the NRC’s own thermal to electric conversion. Supply chain limits on turbines, transformers and other long lead time equipment are not modeled here.</li>
+<li>These are base rates, not a forecast for any one plant. Reactor type, steam dryer design and the completeness of the application matter much more and vary for a single unit.</li>
+</ul>
+</div>
+</section>
+
+<section id="map">
+<div class="wrap">
+<h2>Where are these reactors?</h2>
+<p>Here are all 64 plant sites in the dataset, including the plants on the NRC’s expected list and the three restarts. Hover a pin to see the plant, and click it to open its photo, its Wikipedia summary, a chart and its record in the dataset. Every plant named in the text above links here too.</p>
+</div>
+<div class="wide">
+<div class="key" id="key-map" aria-label="Key"></div>
+<div class="map-grid">
+<div class="map-box" id="map-box">
+<svg id="map-svg" role="img" aria-label="Map of the contiguous United States with a pin for each of the 64 nuclear plant sites in the dataset. Use the plant list beside the map to open any site."></svg>
+<div class="map-tip" id="map-tip" hidden></div>
+</div>
+<figure class="map-photo" id="map-photo">
+<div class="mph-frame" id="mph-frame"></div>
+<figcaption class="mph-cap" id="mph-cap"></figcaption>
+</figure>
+<div class="map-detail" id="map-detail" role="region" aria-label="Plant details">
+<div class="md-bar">
+<label class="ctl-label" for="map-pick">Plant</label>
+<select id="map-pick"></select>
+<button type="button" class="md-back" id="map-back">↑ Back to the text</button>
+<button type="button" class="mp-close" id="map-close" aria-label="Close the plant details">×</button>
+</div>
+<div class="md-cols">
+<div class="md-text" id="map-body" aria-live="polite"></div>
+<div class="md-plot">
+<h4 class="md-plot-title" id="site-title"></h4>
+<div class="md-plot-ctl"><span class="md-note" id="site-note"></span><div class="seg" data-control="sitePlot" id="site-seg"><button type="button" data-value="expected" aria-pressed="false">Expected capacity</button><button type="button" data-value="history" aria-pressed="true">Uprate history</button></div></div>
+<div class="key md-key" id="key-site" aria-label="Key"></div>
+<div class="chart" id="fig-site" role="img" aria-label="Chart for the selected plant"></div>
+</div>
+</div>
+</div>
+</div>
+<p class="note map-note">Plant locations come from EIA records in the WRI Global Power Plant Database, and from Wikipedia for seven plants those records leave out. A few pins that would sit on top of each other are nudged apart. State outlines are from the U.S. Census Bureau. The photos are from Wikimedia Commons and the summaries are from Wikipedia, both saved on October 26, 2026, and every photographer is credited under <a href="#photo-credits">Sources</a>. The NRC withholds the plant on 13 expected filings, so those can’t be placed on the map.</p>
+</div>
+</section>
+
+<section id="sources">
+<div class="wrap">
+<h2>Sources</h2>
+<ol class="sources">
+<li><a href="https://www.nrc.gov/reactors/operating/licensing/power-uprates/status-power-apps/approved-applications.html">NRC, Approved Applications for Power Uprates</a>, checked October 23, 2026.</li>
+<li><a href="https://www.nrc.gov/reactors/operating/licensing/power-uprates/status-power-apps/expected-applications.html">NRC, Expected Applications for Power Uprates</a>, updated September 8, 2026.</li>
+<li><a href="https://www.nrc.gov/reactors/operating/licensing/power-uprates/status-power-apps/pending-applications.html">NRC, Pending Applications for Power Uprates</a>, updated September 15, 2026: no applications under review.</li>
+<li><a href="https://www.nrc.gov/docs/ML2410/ML24106A068.pdf">NRC letter to the Nuclear Energy Institute on uprate review targets, May 7, 2024 (ML24106A068)</a>.</li>
+<li><a href="https://www.nrc.gov/docs/ML2607/ML26075E825.pdf">NRC, Transforming Readiness: Preparing the NRC for the Next Era of Power Uprates, 2026 (ML26075E825)</a>.</li>
+<li><a href="https://www.powermag.com/doe-unveils-initiative-to-add-5-gw-of-nuclear-capacity-through-uprates-and-restarts/">POWER, DOE Unveils Initiative to Add 5 GW of Nuclear Capacity Through Uprates and Restarts, March 12, 2026</a>.</li>
+<li><a href="https://world-nuclear-news.org/articles/us-aims-for-5-gw-more-from-existing-nuclear">World Nuclear News, US aims for 5 GW more from existing nuclear, March 13, 2026</a>: Palisades (805 MW) and Crane (835 MW).</li>
+<li><a href="https://www.utilitydive.com/news/nextera-google-nuclear-earnings/804308/">Utility Dive, NextEra aims to restart Iowa nuclear plant by early 2029, November 3, 2025</a>: Duane Arnold, 615 MW.</li>
+<li><a href="https://www.ans.org/news/article-8467/google-constellation-reach-11unit-uprate-plan-constellation-to-invest-43-billion/">ANS Nuclear News, Google and Constellation reach 11 unit uprate plan, October 6, 2026</a>.</li>
+<li>Every review time links to its letter in the NRC’s ADAMS library at nrc.gov/docs.</li>
+<li><a href="https://github.com/wri/global-power-plant-database">World Resources Institute, Global Power Plant Database</a>: plant locations from EIA records.</li>
+<li><a href="https://github.com/topojson/us-atlas">us-atlas</a>: state outlines from the U.S. Census Bureau’s cartographic boundary files.</li>
+<li>Wikipedia: the plant summaries on the map, saved October 26, 2026 and used under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, and the locations of Pilgrim, Three Mile Island, Fort Calhoun, Crystal River, Kewaunee, Vermont Yankee and San Onofre.</li>
+<li>Wikimedia Commons: the plant photos on the map, saved October 26, 2026. Each is public domain or under the Creative Commons license named here.
+<details class="credits" id="photo-credits"><summary>Photo credits for all 64 plants</summary>
+<ul class="credits-list">
+<!-- photo-credits:start -->
+<li><a class="plant-link" href="#plant-ano" data-site="ano">Arkansas Nuclear One</a>: <a href="https://commons.wikimedia.org/wiki/File:RusselvillePowerplant_b.jpg">photo</a> by Edibobb, edited by Georgfotoart, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a></li>
+<li><a class="plant-link" href="#plant-beaver-valley" data-site="beaver-valley">Beaver Valley</a>: <a href="https://commons.wikimedia.org/wiki/File:Beaver_Valley_Nuclear_Power_Plant.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-braidwood" data-site="braidwood">Braidwood</a>: <a href="https://commons.wikimedia.org/wiki/File:Braidwood_nuclear_power_station.png">photo</a> by Ken Lund, cropped by Wikideas1, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-browns-ferry" data-site="browns-ferry">Browns Ferry</a>: <a href="https://commons.wikimedia.org/wiki/File:Browns_ferry_NPP.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-brunswick" data-site="brunswick">Brunswick</a>: <a href="https://commons.wikimedia.org/wiki/File:Brunswick_NPP-2.jpg">photo</a> by Doc Searls, edited by Jonathan Haas, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-byron" data-site="byron">Byron</a>: <a href="https://commons.wikimedia.org/wiki/File:Byron_Clean_Energy_Center_2025-1.jpg">photo</a> by MediaGuy768, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-callaway" data-site="callaway">Callaway</a>: <a href="https://commons.wikimedia.org/wiki/File:Callaway_Nuclear_Plant.JPG">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-calvert-cliffs" data-site="calvert-cliffs">Calvert Cliffs</a>: <a href="https://commons.wikimedia.org/wiki/File:Calvert_Cliffs_retouched.jpg">photo</a> by Jbs666 at the English-language Wikipedia, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-catawba" data-site="catawba">Catawba</a>: <a href="https://commons.wikimedia.org/wiki/File:Catawba_Nuclear_Station-2.jpg">photo</a> by Civilengtiger at English Wikipedia, edited by Saibo, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-clinton" data-site="clinton">Clinton</a>: <a href="https://commons.wikimedia.org/wiki/File:Clinton_Illinois_nuclear_power_station_-_aerial_2.jpg">photo</a> by Tedder, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+<li><a class="plant-link" href="#plant-columbia" data-site="columbia">Columbia</a>: <a href="https://commons.wikimedia.org/wiki/File:Columbia_Generating_Station_at_Hanford_Washington.JPG">photo</a> by Chris Uhlik, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-comanche-peak" data-site="comanche-peak">Comanche Peak</a>: <a href="https://commons.wikimedia.org/wiki/File:Comanche_Peak_Nuclear_Power_Plant_August_2017_(cropped).jpg">photo</a> by Michael Barera, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-cooper" data-site="cooper">Cooper</a>: <a href="https://commons.wikimedia.org/wiki/File:Cooper_Nuclear_Station_-_June_2011_aerial.jpg">photo</a> by U.S. Army Corps of Engineers, Omaha District, public domain</li>
+<li><a class="plant-link" href="#plant-crane" data-site="crane">Crane (Three Mile Island)</a>: <a href="https://commons.wikimedia.org/wiki/File:Three_Mile_Island_Nuclear_Generating_Station_(51142893665).jpg">photo</a> by formulanone, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-crystal-river" data-site="crystal-river">Crystal River</a>: <a href="https://commons.wikimedia.org/wiki/File:Crystal_River_Nuclear_Generating_Plant_Unit_3.jpg">photo</a> by U.S. Nuclear Regulatory Commission, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-cook" data-site="cook">D.C. Cook</a>: <a href="https://commons.wikimedia.org/wiki/File:Cook_nuclear_exterior.jpg">photo</a> by Tom Remick (Photoguy35), <a href="https://creativecommons.org/licenses/by/2.5/">CC BY 2.5</a></li>
+<li><a class="plant-link" href="#plant-davis-besse" data-site="davis-besse">Davis-Besse</a>: <a href="https://commons.wikimedia.org/wiki/File:David_Besse_NPP-2.jpg">photo</a> by U.S. Nuclear Regulatory Commission, edited by Saibo, public domain</li>
+<li><a class="plant-link" href="#plant-diablo-canyon" data-site="diablo-canyon">Diablo Canyon</a>: <a href="https://commons.wikimedia.org/wiki/File:Diablo_Canyon_NPP_above.jpg">photo</a> by Doc Searls, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-dresden" data-site="dresden">Dresden</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6B.274_(11842857676).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-duane-arnold" data-site="duane-arnold">Duane Arnold</a>: <a href="https://commons.wikimedia.org/wiki/File:DAEC.jpg">photo</a> by AsNuke, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-farley" data-site="farley">Farley</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.139_(10821938374).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-fermi" data-site="fermi">Fermi</a>: <a href="https://commons.wikimedia.org/wiki/File:Fermi_NPP.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-fitzpatrick" data-site="fitzpatrick">FitzPatrick</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.339_(10824948594).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-fort-calhoun" data-site="fort-calhoun">Fort Calhoun</a>: <a href="https://commons.wikimedia.org/wiki/File:Fort_Calhoun_power_plant_1.JPG">photo</a> by Ammodramus, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a></li>
+<li><a class="plant-link" href="#plant-ginna" data-site="ginna">Ginna</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.299_(10824920903).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-grand-gulf" data-site="grand-gulf">Grand Gulf</a>: <a href="https://commons.wikimedia.org/wiki/File:Grand_Gulf_NPP.jpg">photo</a> by North747, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-robinson" data-site="robinson">H. B. Robinson</a>: <a href="https://commons.wikimedia.org/wiki/File:Robinson_Nuclear_Station_seen_from_Lake_Robinson.JPG">photo</a> by Murr Rhame, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-hatch" data-site="hatch">Hatch</a>: <a href="https://commons.wikimedia.org/wiki/File:E._I._Hatch_Nuclear_Power_Plant.jpg">photo</a> by Civilengtiger at English Wikipedia, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-hope-creek" data-site="hope-creek">Hope Creek</a>: <a href="https://commons.wikimedia.org/wiki/File:Hope_creek_NPP.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-indian-point" data-site="indian-point">Indian Point</a>: <a href="https://commons.wikimedia.org/wiki/File:Indian_Point_Nuclear_Power_Plant.jpg">photo</a> by Tony (tonythemisfit on Flickr), <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-kewaunee" data-site="kewaunee">Kewaunee</a>: <a href="https://commons.wikimedia.org/wiki/File:KewauneeNuclearGeneratingStationAug2009.jpg">photo</a> by Royalbroil, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-lasalle" data-site="lasalle">LaSalle</a>: <a href="https://commons.wikimedia.org/wiki/File:LaSalle_County_Nuclear_Generating_Station,_Near_Ottawa,_Illinois_(7981646921).jpg">photo</a> by Ken Lund, cropped and adjusted for this page, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-limerick" data-site="limerick">Limerick</a>: <a href="https://commons.wikimedia.org/wiki/File:LimerickPowerPlant.JPG">photo</a> by Arturo Ramos, <a href="https://creativecommons.org/licenses/by-sa/2.5/">CC BY-SA 2.5</a></li>
+<li><a class="plant-link" href="#plant-mcguire" data-site="mcguire">McGuire</a>: <a href="https://commons.wikimedia.org/wiki/File:McGuire_Nuclear_Station_from_lake_Norman.jpg">photo</a> by Murr Rhame, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-millstone" data-site="millstone">Millstone</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.129_(10821944423).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-monticello" data-site="monticello">Monticello</a>: <a href="https://commons.wikimedia.org/wiki/File:Monticello_Nuclear_Generating_Plant,_Unit_1_(8613623282).jpg">photo</a> by U.S. Nuclear Regulatory Commission, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-nine-mile-point" data-site="nine-mile-point">Nine Mile Point</a>: <a href="https://commons.wikimedia.org/wiki/File:Nine_Mile_Point_ISFSI_Pad_Expansion.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-north-anna" data-site="north-anna">North Anna</a>: <a href="https://commons.wikimedia.org/wiki/File:North_Anna_Power_Station_16x9.jpg">photo</a> by Michael Stuart (Stuartmj), <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-oconee" data-site="oconee">Oconee</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6B.349_(11856013654).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-palisades" data-site="palisades">Palisades</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6B.285_(11842463663).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-palo-verde" data-site="palo-verde">Palo Verde</a>: <a href="https://commons.wikimedia.org/wiki/File:PaloVerdeNuclearGeneratingStation.jpg">photo</a> by Chris Uhlik (Cuhlik), public domain</li>
+<li><a class="plant-link" href="#plant-peach-bottom" data-site="peach-bottom">Peach Bottom</a>: <a href="https://commons.wikimedia.org/wiki/File:Peach_Bottom_Nuclear_Generating_Station_1974_cropped.jpg">photo</a> by U.S. Department of Energy, cropped by Mr. Matté, public domain</li>
+<li><a class="plant-link" href="#plant-perry" data-site="perry">Perry</a>: <a href="https://commons.wikimedia.org/wiki/File:Perry_Nuclear_Plant_(2),_July_2020.jpg">photo</a> by Cards84664, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-pilgrim" data-site="pilgrim">Pilgrim</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6B.365_(11856585806).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-point-beach" data-site="point-beach">Point Beach</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6B.370_(11856150113).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-prairie-island" data-site="prairie-island">Prairie Island</a>: <a href="https://commons.wikimedia.org/wiki/File:Prairie_Island_Nuclear_Generating_Plant.jpg">photo</a> by Wikideas1, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a></li>
+<li><a class="plant-link" href="#plant-quad-cities" data-site="quad-cities">Quad Cities</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.122_(10731053375).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-river-bend" data-site="river-bend">River Bend</a>: <a href="https://commons.wikimedia.org/wiki/File:River_Bend_Nuclear_Station,_Unit_1_(32540002895).jpg">photo</a> by U.S. Nuclear Regulatory Commission, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-salem" data-site="salem">Salem</a>: <a href="https://commons.wikimedia.org/wiki/File:Salem_and_Hope_Creek_Nuclear_Reactors_(7238282472).jpg">photo</a> by Peretz Partensky, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-san-onofre" data-site="san-onofre">San Onofre</a>: <a href="https://commons.wikimedia.org/wiki/File:San_Onofre_Nuclear_Generating_Station_2013_photo_Don_Ramey_Logan.jpg">photo</a> by Don Ramey Logan, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-seabrook" data-site="seabrook">Seabrook</a>: <a href="https://commons.wikimedia.org/wiki/File:Seabrook_2009-2.jpg">photo</a> by Jim Richmond, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a></li>
+<li><a class="plant-link" href="#plant-sequoyah" data-site="sequoyah">Sequoyah</a>: <a href="https://commons.wikimedia.org/wiki/File:Sequoyah_Nuclear_Generating_Station.jpg">photo</a> by Tennessee Valley Authority, public domain</li>
+<li><a class="plant-link" href="#plant-harris" data-site="harris">Shearon Harris</a>: <a href="https://commons.wikimedia.org/wiki/File:Shearon_Harris_Unit_1.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-south-texas" data-site="south-texas">South Texas Project</a>: <a href="https://commons.wikimedia.org/wiki/File:South_Texas_Nuclear_Generating_Station.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-st-lucie" data-site="st-lucie">St. Lucie</a>: <a href="https://commons.wikimedia.org/wiki/File:St._Lucie_Nuclear_Power_Plant_photo_Don_Ramey_Logan.jpg">photo</a> by Don Ramey Logan, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-surry" data-site="surry">Surry</a>: <a href="https://commons.wikimedia.org/wiki/File:HD.6D.371_(10856487633).jpg">photo</a> by U.S. Department of Energy, public domain</li>
+<li><a class="plant-link" href="#plant-susquehanna" data-site="susquehanna">Susquehanna</a>: <a href="https://commons.wikimedia.org/wiki/File:Susquehanna_Steam_Electric_Station_from_Council_Cup_1.JPG">photo</a> by Jakec, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+<li><a class="plant-link" href="#plant-turkey-point" data-site="turkey-point">Turkey Point</a>: <a href="https://commons.wikimedia.org/wiki/File:TURKEY_POINT_NUCLEAR_PLANT_-_NARA_-_544495.tif">photo</a> by Fred Ward, U.S. National Archives, public domain</li>
+<li><a class="plant-link" href="#plant-summer" data-site="summer">V. C. Summer</a>: <a href="https://commons.wikimedia.org/wiki/File:Virgil_C._Summer_Nuclear_Station_Unit_1.jpg">photo</a> by DJSlawSlaw, from an SCE&amp;G publicity photo, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li><a class="plant-link" href="#plant-vermont-yankee" data-site="vermont-yankee">Vermont Yankee</a>: <a href="https://commons.wikimedia.org/wiki/File:Vermont_Yankee_Unit_1.jpg">photo</a> by U.S. Nuclear Regulatory Commission, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-vogtle" data-site="vogtle">Vogtle</a>: <a href="https://commons.wikimedia.org/wiki/File:Vogtle_NPP.jpg">photo</a> by U.S. Nuclear Regulatory Commission, public domain</li>
+<li><a class="plant-link" href="#plant-waterford" data-site="waterford">Waterford</a>: <a href="https://commons.wikimedia.org/wiki/File:Mississippi_River_-_Hahnville,_Saint_Charles_Parish,_Louisiana.jpg">photo</a> by ---=XEON=--- (Panoramio), <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a></li>
+<li><a class="plant-link" href="#plant-watts-bar" data-site="watts-bar">Watts Bar</a>: <a href="https://commons.wikimedia.org/wiki/File:Watts_Bar-6.jpg">photo</a> by TVA Web Team, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<li><a class="plant-link" href="#plant-wolf-creek" data-site="wolf-creek">Wolf Creek</a>: <a href="https://commons.wikimedia.org/wiki/File:NRC_Commissioner_Annie_Caputo_tours_Wolf_Creek_Generating_Station_(43783189581).jpg">photo</a> by Wolf Creek Nuclear Operating Corp., via the NRC, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+<!-- photo-credits:end -->
+</ul>
+</details></li>
+</ol>
+</div>
+</section>
+</main>
+<footer>
+<div class="wrap">
+<p>Independent work built from public records. It doesn’t speak for INL, DOE or the NRC. Set in Computer Modern (CMU Serif, SIL Open Font License). Charts drawn with Plotly.</p>
+<p>Version 1.0, October 2026. Next refresh December 2026.</p>
+</div>
+</footer>
+<noscript><div class="wrap"><p class="note">The charts need JavaScript. The dataset and code downloads at the top of the page work without it.</p></div></noscript>
+<script src="assets/plotly-basic-3.1.0.min.js"></script>
+<script src="assets/uprate_data.js"></script>
+<script src="assets/model.js"></script>
+<script src="assets/usmap.js"></script>
+<script src="assets/plants.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/hero.js"></script>
+</body>
+</html>
